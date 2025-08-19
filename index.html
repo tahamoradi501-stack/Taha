@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مولد قرارداد هوشمند | AI Contract Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --darker: #020617;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+        }
+        
+        /* Dark Glassmorphism */
+        .glassmorphism {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        
+        .glassmorphism-strong {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Simple Gradients */
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        .gradient-bg-2 {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        
+        .gradient-bg-3 {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+        }
+        
+        .gradient-bg-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+        }
+        
+        /* Simple Hover Effects */
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease;
+        }
+        
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Notification System */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification-welcome {
+            background: var(--success);
+        }
+        
+        /* Contract Text Styling */
+        .contract-text {
+            white-space: pre-wrap;
+            line-height: 1.8;
+            font-size: 16px;
+            text-align: justify;
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white relative">
+    <!-- Simple Background Pattern -->
+    <div class="fixed inset-0 opacity-10 pointer-events-none">
+        <div class="absolute inset-0" style="background-image: 
+            radial-gradient(circle at 20% 20%, #6366f1 0%, transparent 50%), 
+            radial-gradient(circle at 80% 80%, #8b5cf6 0%, transparent 50%);"></div>
+    </div>
+    
+    <!-- Notification System -->
+    <div id="notification" class="notification glassmorphism rounded-xl p-4 max-w-sm">
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <div id="notificationIcon" class="text-2xl"></div>
+            <div>
+                <div id="notificationTitle" class="font-semibold"></div>
+                <div id="notificationMessage" class="text-sm text-gray-300"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="relative min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-4xl">
+
+
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-white">
+                    <i class="fas fa-file-contract text-indigo-400 mr-3"></i>
+                    مولد قرارداد هوشمند
+                </h1>
+                <p class="text-gray-300 text-lg mb-6">
+                    قرارداد حرفه‌ای خود را با قدرت هوش مصنوعی ما بسپارید
+                </p>
+                <div class="flex items-center justify-center space-x-6 space-x-reverse flex-wrap gap-2">
+                    <div class="glassmorphism rounded-full px-4 py-2 hover-lift">
+                        <i class="fas fa-users text-blue-400 mr-2"></i>
+                        <span class="text-sm">+999,000 کاربر</span>
+                    </div>
+                    <div class="glassmorphism rounded-full px-4 py-2 hover-lift">
+                        <i class="fas fa-file-contract text-green-400 mr-2"></i>
+                        <span class="text-sm">+999,000 قرارداد</span>
+                    </div>
+                    <div class="glassmorphism rounded-full px-4 py-2 hover-lift">
+                        <i class="fas fa-clock text-yellow-400 mr-2"></i>
+                        <span class="text-sm">در 30 ثانیه</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Form -->
+            <div class="glassmorphism-strong rounded-2xl p-8 mb-6 hover-lift">
+                <form id="contractForm" class="space-y-6">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-indigo-300 mb-2">
+                            <i class="fas fa-edit mr-2"></i>
+                            تولید قرارداد هوشمند
+                        </h3>
+                        <p class="text-gray-300">موضوع قرارداد خود را وارد کنید</p>
+                    </div>
+                    
+                    <div>
+                        <label for="subject" class="block text-sm font-medium text-gray-300 mb-3 flex items-center">
+                            <i class="fas fa-lightbulb mr-2 text-yellow-400"></i>
+                            موضوع قرارداد
+                        </label>
+                        <input 
+                            type="text" 
+                            id="subject" 
+                            name="subject"
+                            placeholder="مثال: طراحی سایت فروشگاهی، توسعه اپلیکیشن موبایل، مشاوره IT..."
+                            class="w-full px-4 py-4 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 hover:bg-gray-700/50"
+                            required
+                        >
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <button type="button" class="glassmorphism px-3 py-1 rounded-full text-sm hover:bg-white/10 transition-all" onclick="fillSuggestion('طراحی سایت فروشگاهی')">
+                                <i class="fas fa-store mr-1"></i>
+                                طراحی سایت فروشگاهی
+                            </button>
+                            <button type="button" class="glassmorphism px-3 py-1 rounded-full text-sm hover:bg-white/10 transition-all" onclick="fillSuggestion('توسعه اپلیکیشن موبایل')">
+                                <i class="fas fa-mobile-alt mr-1"></i>
+                                توسعه اپلیکیشن موبایل
+                            </button>
+                            <button type="button" class="glassmorphism px-3 py-1 rounded-full text-sm hover:bg-white/10 transition-all" onclick="fillSuggestion('مشاوره IT')">
+                                <i class="fas fa-laptop-code mr-1"></i>
+                                مشاوره IT
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        type="submit" 
+                        id="generateBtn"
+                        class="w-full gradient-bg text-white font-semibold py-4 px-6 rounded-xl hover-lift transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                    >
+                        <span id="btnText" class="flex items-center justify-center">
+                            <i class="fas fa-magic mr-2"></i>
+                            تولید قرارداد با هوش مصنوعی
+                        </span>
+                        <span id="btnLoading" class="hidden flex items-center justify-center">
+                            <div class="loading-spinner mr-2"></div>
+                            در حال تولید قرارداد...
+                        </span>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden glassmorphism-strong rounded-2xl p-8 text-center">
+                <div class="text-4xl mb-4">🤖</div>
+                <h3 class="text-xl font-bold text-indigo-300 mb-4">هوش مصنوعی در حال کار است...</h3>
+                <div class="flex items-center justify-center space-x-3 space-x-reverse">
+                    <div class="loading-spinner"></div>
+                    <span class="text-lg">در حال تحلیل و تولید قرارداد</span>
+                </div>
+            </div>
+            
+            <!-- Contract Result -->
+            <div id="contractResult" class="hidden glassmorphism-strong rounded-2xl p-8 hover-lift">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <div class="text-3xl">✅</div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-green-400">قرارداد آماده است!</h2>
+                            <p class="text-gray-300">قرارداد شما با موفقیت تولید شد</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3 space-x-reverse">
+                        <button 
+                            id="copyBtn"
+                            class="gradient-bg-2 hover-lift text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center space-x-2 space-x-reverse"
+                        >
+                            <i class="fas fa-copy"></i>
+                            <span>کپی</span>
+                        </button>
+                        <button 
+                            id="downloadBtn"
+                            class="gradient-bg-3 hover-lift text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center space-x-2 space-x-reverse"
+                        >
+                            <i class="fas fa-download"></i>
+                            <span>دانلود</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="glassmorphism rounded-xl p-6 border border-gray-600">
+                    <div id="contractContent" class="contract-text text-gray-100 leading-relaxed"></div>
+                </div>
+                
+                <button 
+                    id="newContractBtn"
+                    class="mt-6 w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-xl transition-colors duration-300"
+                >
+                    <i class="fas fa-plus mr-2"></i>
+                    تولید قرارداد جدید
+                </button>
+            </div>
+            
+            <!-- Error State -->
+            <div id="errorState" class="hidden glassmorphism-strong rounded-2xl p-8 text-center border border-red-500/30">
+                <div class="text-4xl mb-4">⚠️</div>
+                <h3 class="text-xl font-bold text-red-400 mb-2">خطا در تولید قرارداد</h3>
+                <p id="errorMessage" class="text-gray-300 mb-4"></p>
+                <div class="flex justify-center space-x-4 space-x-reverse">
+                    <button 
+                        id="retryBtn"
+                        class="gradient-bg-danger hover-lift text-white px-6 py-3 rounded-lg transition-all duration-300"
+                    >
+                        <i class="fas fa-redo mr-2"></i>
+                        تلاش مجدد
+                    </button>
+                    <button 
+                        onclick="location.reload()"
+                        class="glassmorphism hover-lift text-white px-6 py-3 rounded-lg transition-all duration-300"
+                    >
+                        <i class="fas fa-refresh mr-2"></i>
+                        بارگذاری مجدد
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="relative mt-16 border-t border-gray-700/50">
+        <div class="glassmorphism">
+            <div class="max-w-6xl mx-auto px-4 py-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- About Section -->
+                    <div class="text-center md:text-right">
+                        <h3 class="text-lg font-bold mb-3 text-indigo-300">
+                            درباره پروژه
+                        </h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            مولد قرارداد هوشمند با استفاده از تکنولوژی‌های مدرن و هوش مصنوعی طراحی شده است.
+                        </p>
+                    </div>
+                    
+                    <!-- Channels Section -->
+                    <div class="text-center">
+                        <h3 class="text-lg font-bold mb-3 text-indigo-300">
+                            صفحات مجازی ما
+                        </h3>
+                        <div class="space-y-2">
+                            <div class="glassmorphism rounded-lg p-3 hover:bg-white/10 transition-all cursor-pointer group" onclick="copyToClipboard('@ar_cod', this)">
+                                <div class="flex items-center justify-center space-x-2 space-x-reverse">
+                                    <span class="text-lg">📢</span>
+                                    <div>
+                                        <div class="font-semibold text-blue-400 text-sm">اینستاگرام</div>
+                                        <div class="text-xs text-gray-400 group-hover:text-white transition-colors">@mr_t4h4</div>
+                                    </div>
+                                    <span class="text-gray-500 group-hover:text-green-400 transition-colors">📋</span>
+                                </div>
+                            </div>
+                            
+                            <div class="glassmorphism rounded-lg p-3 hover:bg-white/10 transition-all cursor-pointer group" onclick="copyToClipboard('@cod_arshiya', this)">
+                                <div class="flex items-center justify-center space-x-2 space-x-reverse">
+                                    <span class="text-lg">👨‍💻</span>
+                                    <div>
+                                        <div class="font-semibold text-purple-400 text-sm">توسعه دهنده</div>
+                                        <div class="text-xs text-gray-400 group-hover:text-white transition-colors">@Mr_t4h4</div>
+                                    </div>
+                                    <span class="text-gray-500 group-hover:text-green-400 transition-colors">📋</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Features Section -->
+                    <div class="text-center md:text-left">
+                        <h3 class="text-lg font-bold mb-3 text-indigo-300">
+                            ویژگی‌ها
+                        </h3>
+                        <ul class="space-y-1 text-gray-400 text-sm">
+                            <li class="flex items-center justify-center md:justify-start space-x-2 space-x-reverse">
+                                <span class="text-green-400">✓</span>
+                                <span>تولید سریع قرارداد</span>
+                            </li>
+                            <li class="flex items-center justify-center md:justify-start space-x-2 space-x-reverse">
+                                <span class="text-green-400">✓</span>
+                                <span>پشتیبانی از زبان فارسی</span>
+                            </li>
+                            <li class="flex items-center justify-center md:justify-start space-x-2 space-x-reverse">
+                                <span class="text-green-400">✓</span>
+                                <span>دانلود و کپی آسان</span>
+                            </li>
+                            <li class="flex items-center justify-center md:justify-start space-x-2 space-x-reverse">
+                                <span class="text-green-400">✓</span>
+                                <span>رابط کاربری مدرن</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Bottom Bar -->
+                <div class="border-t border-gray-700/50 mt-6 pt-6 text-center">
+                    <div class="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
+                        <div class="text-gray-400 text-sm">
+                            © 2025 مولد قرارداد هوشمند - تمامی حقوق محفوظ است
+                        </div>
+                        <div class="flex items-center space-x-2 space-x-reverse text-sm">
+                            <span class="text-gray-400">ساخته شده  توسط</span>
+                            <span class="text-red-500">محمد طاها مرادی پور</span>
+                            <span class="text-gray-400">برای جامعه توسعه دهندگان</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API_TOKEN = 'jrfxczmnu1hwjqo:x5qSb4mDAb9uRtG3gBga';
+        const API_BASE_URL = 'https://api.majidapi.ir/ai/contract-sample';
+        
+        const form = document.getElementById('contractForm');
+        const generateBtn = document.getElementById('generateBtn');
+        const btnText = document.getElementById('btnText');
+        const btnLoading = document.getElementById('btnLoading');
+        const loadingState = document.getElementById('loadingState');
+        const contractResult = document.getElementById('contractResult');
+        const contractContent = document.getElementById('contractContent');
+        const errorState = document.getElementById('errorState');
+        const errorMessage = document.getElementById('errorMessage');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const newContractBtn = document.getElementById('newContractBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        
+        let currentSubject = '';
+        let currentContract = '';
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const subject = document.getElementById('subject').value.trim();
+            if (!subject) return;
+            
+            currentSubject = subject;
+            await generateContract(subject);
+        });
+        
+        async function generateContract(subject) {
+            // Show loading state
+            showLoading();
+            
+            try {
+                const url = `${API_BASE_URL}?subject=${encodeURIComponent(subject)}&token=${API_TOKEN}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`خطا در درخواست: ${response.status}`);
+                }
+                
+                const data = await response.text();
+                
+                // Parse JSON response and extract only the contract text
+                let contractText = '';
+                try {
+                    const jsonData = JSON.parse(data);
+                    contractText = jsonData.result || data;
+                } catch (e) {
+                    // If not JSON, use as is
+                    contractText = data;
+                }
+                
+                // Clean the contract text - remove any extra information
+                currentContract = contractText.trim();
+                
+                // Show success
+                showSuccess(currentContract);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message || 'خطا در اتصال به سرور');
+            }
+        }
+        
+        function showLoading() {
+            hideAllStates();
+            generateBtn.disabled = true;
+            btnText.classList.add('hidden');
+            btnLoading.classList.remove('hidden');
+            loadingState.classList.remove('hidden');
+        }
+        
+        function showSuccess(contract) {
+            hideAllStates();
+            contractContent.textContent = contract;
+            contractResult.classList.remove('hidden');
+            resetButton();
+        }
+        
+        function showError(message) {
+            hideAllStates();
+            errorMessage.textContent = message;
+            errorState.classList.remove('hidden');
+            resetButton();
+        }
+        
+        function hideAllStates() {
+            loadingState.classList.add('hidden');
+            contractResult.classList.add('hidden');
+            errorState.classList.add('hidden');
+        }
+        
+        function resetButton() {
+            generateBtn.disabled = false;
+            btnText.classList.remove('hidden');
+            btnLoading.classList.add('hidden');
+        }
+        
+        // Copy functionality
+        copyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(currentContract);
+                copyBtn.innerHTML = '<i class="fas fa-check"></i><span>کپی شد</span>';
+                showNotification('موفق!', 'قرارداد در کلیپ‌بورد کپی شد', '✅', 'success');
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="fas fa-copy"></i><span>کپی</span>';
+                }, 2000);
+            } catch (error) {
+                console.error('Copy failed:', error);
+                // Fallback method for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = currentContract;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i><span>کپی شد</span>';
+                    showNotification('موفق!', 'قرارداد در کلیپ‌بورد کپی شد', '✅', 'success');
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '<i class="fas fa-copy"></i><span>کپی</span>';
+                    }, 2000);
+                } catch (fallbackError) {
+                    showNotification('خطا', 'امکان کپی کردن وجود ندارد', '❌', 'error');
+                }
+                document.body.removeChild(textArea);
+            }
+        });
+        
+        // Download functionality
+        downloadBtn.addEventListener('click', () => {
+            const blob = new Blob([currentContract], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `قرارداد-${currentSubject}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+        
+        // New contract button
+        newContractBtn.addEventListener('click', () => {
+            hideAllStates();
+            document.getElementById('subject').value = '';
+            document.getElementById('subject').focus();
+        });
+        
+        // Retry button
+        retryBtn.addEventListener('click', () => {
+            if (currentSubject) {
+                generateContract(currentSubject);
+            }
+        });
+        
+        // Enhanced notification system
+        function showNotification(title, message, icon, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationTitle = document.getElementById('notificationTitle');
+            const notificationMessage = document.getElementById('notificationMessage');
+            const notificationIcon = document.getElementById('notificationIcon');
+            
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message;
+            notificationIcon.textContent = icon;
+            
+            // Set colors and styles based on type
+            if (type === 'welcome') {
+                notification.className = 'notification notification-welcome rounded-xl p-4 max-w-sm';
+                notificationTitle.style.color = 'white';
+                notificationMessage.style.color = 'rgba(255, 255, 255, 0.9)';
+            } else {
+                notification.className = `notification glassmorphism rounded-xl p-4 max-w-sm ${
+                    type === 'success' ? 'border-green-500/30' : 
+                    type === 'error' ? 'border-red-500/30' : 
+                    'border-blue-500/30'
+                }`;
+                notificationTitle.style.color = '';
+                notificationMessage.style.color = '';
+            }
+            
+            notification.classList.add('show');
+            
+            const duration = type === 'welcome' ? 5000 : 3000;
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, duration);
+        }
+        
+        // Copy to clipboard function for footer
+        async function copyToClipboard(text, element) {
+            try {
+                await navigator.clipboard.writeText(text);
+                
+                // Visual feedback
+                const originalContent = element.innerHTML;
+                element.innerHTML = element.innerHTML.replace('📋', '✅');
+                element.classList.add('bg-green-600/20');
+                
+                showNotification('کپی شد!', `${text} در کلیپ‌بورد کپی شد`, '✅', 'success');
+                
+                setTimeout(() => {
+                    element.innerHTML = originalContent;
+                    element.classList.remove('bg-green-600/20');
+                }, 2000);
+            } catch (error) {
+                showNotification('خطا', 'امکان کپی کردن وجود ندارد', '❌', 'error');
+            }
+        }
+        
+
+        
+        // Enhanced input animations
+        document.getElementById('subject').addEventListener('focus', function() {
+            this.parentElement.classList.add('scale-105');
+        });
+        
+        document.getElementById('subject').addEventListener('blur', function() {
+            this.parentElement.classList.remove('scale-105');
+        });
+        
+        // Add typing effect for placeholder
+        const input = document.getElementById('subject');
+        const placeholders = [
+            'طراحی سایت فروشگاهی...',
+            'توسعه اپلیکیشن موبایل...',
+            'مشاوره IT و فناوری...',
+            'طراحی لوگو و برندینگ...',
+            'خدمات سئو و دیجیتال مارکتینگ...'
+        ];
+        
+        let placeholderIndex = 0;
+        setInterval(() => {
+            if (!input.value && document.activeElement !== input) {
+                input.placeholder = placeholders[placeholderIndex];
+                placeholderIndex = (placeholderIndex + 1) % placeholders.length;
+            }
+        }, 3000);
+        
+        // Suggestion function
+        function fillSuggestion(text) {
+            document.getElementById('subject').value = text;
+            document.getElementById('subject').focus();
+        }
+        
+        // Focus on input when page loads
+        document.getElementById('subject').focus();
+        
+        // Show welcome notification
+        setTimeout(() => {
+            showNotification('خوش آمدید! 🎉', 'به مولد قرارداد هوشمند خوش آمدید. موضوع قرارداد خود را وارد کنید و شروع کنید!', '🚀', 'welcome');
+        }, 1000);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97113bb3e64fc713',t:'MTc1NTUxODI0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
